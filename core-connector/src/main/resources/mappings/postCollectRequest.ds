@@ -1,0 +1,5 @@
+{
+    "NrcNumber": "ABCMBC",
+    "MobileNumber": cml.header('idValue'),
+    "Channel": 1
+}
