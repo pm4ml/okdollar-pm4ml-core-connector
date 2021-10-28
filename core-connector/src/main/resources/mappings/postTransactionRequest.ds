@@ -1,5 +1,5 @@
 {
-    "BankAccountNumber": cml.properties("dfsp.bankaccountnumber"),
+    "BankAccountNumber": payload.to.idValue,
     "TransactionId": payload.transferId,
     "DesitinationNumber": payload.to.idValue,
     "Amount": payload.amount,
@@ -7,9 +7,9 @@
     "MobileNumber": payload.from.idValue,
     "SimId": "",
     "MsId": "",
-    "Latitude": "",
-    "Longitude": "",
-    "CellId": "",
+    "Latitude": "0.0",
+    "Longitude": "0.0",
+    "CellId": "0",
     "ProfileImg": "",
     "ProjectId": cml.properties("dfsp.projectid"),
     "Channel": cml.properties("dfsp.channel")

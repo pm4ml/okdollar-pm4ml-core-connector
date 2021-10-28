@@ -80,10 +80,15 @@ public class PartiesRouter extends RouteBuilder {
 						"'Tracking the request', 'Track the response', " +
 						"'Request sent to, POST {{dfsp.host}}/okdollar/v1/GetOKUserInfos was: ${body}')")
 				.toD("{{dfsp.host}}/okdollar/v1/GetOKUserInfos?bridgeEndpoint=true&throwExceptionOnFailure=false")
-				.unmarshal().json(JsonLibrary.Gson)
+//				.unmarshal().json(JsonLibrary.Gson)
+
+//				.marshall().json()
+				.transform(datasonnet("resource:classpath:mappings/getPartiesResponse.ds"))
+				.setBody(simple("${body.content}"))
+				.marshal().json()
 
 				// Add CORS headers
-				.process(corsFilter)
+//				.process(corsFilter)
 
 				.to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
 						"'Response from backend API, getParties: ${body}', " +
