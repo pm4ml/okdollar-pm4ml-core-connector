@@ -14,6 +14,6 @@ ENV DFSP_PROJECT_ID=clientId
 ENV DFSP_BANKACCOUNTNUMBER=bankaccountnumber
 ENV DFSP_CHANNEL=0
 
-ENTRYPOINT ["java", "-Dml-conn.outbound.host=${MLCONN_OUTBOUND_ENDPOINT}", "-Ddfsp.name=${DFSP_NAME}", "-Ddfsp.host=${DFSP_HOST}", "-Ddfsp.username=${DFSP_USERNAME}", "-Ddfsp.password=${DFSP_PASSWORD}", "-Ddfsp.projectid=${DFSP_PROJECT_ID}", "-Ddfsp.bankaccountnumber=${DFSP_BANKACCOUNTNUMBER}", "-Ddfsp.channel=${DFSP_CHANNEL}", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-Dml-conn.outbound.host=${MLCONN_OUTBOUND_ENDPOINT}", "-Ddfsp.name=${DFSP_NAME}", "-Ddfsp.host=${DFSP_HOST}", "-Ddfsp.username=${DFSP_USERNAME}", "-Ddfsp.password=${DFSP_PASSWORD}", "-Ddfsp.projectid=${DFSP_PROJECTID}", "-Ddfsp.bankaccountnumber=${DFSP_BANKACCOUNTNUMBER}", "-Ddfsp.channel=${DFSP_CHANNEL}", "-jar", "/app.jar"]
 
 EXPOSE 3003
