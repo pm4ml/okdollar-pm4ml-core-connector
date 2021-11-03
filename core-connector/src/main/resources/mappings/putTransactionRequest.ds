@@ -1,0 +1,16 @@
+{
+    "BankAccountNumber": payload.quote.request.payee.partyIdInfo.partyIdentifier,
+    "TransactionId": payload.transferId,
+    "DesitinationNumber": payload.quote.request.payee.partyIdInfo.partyIdentifier,
+    "Amount": payload.quote.request.amount.amount,
+    "Comments": payload.quote.request.note,
+    "MobileNumber": payload.quote.request.payer.partyIdInfo.partyIdentifier,
+    "SimId": "",
+    "MsId": "",
+    "Latitude": "0.0",
+    "Longitude": "0.0",
+    "CellId": "0",
+    "ProfileImg": "",
+    "ProjectId": cml.properties("dfsp.projectid"),
+    "Channel": cml.properties("dfsp.channel")
+}
