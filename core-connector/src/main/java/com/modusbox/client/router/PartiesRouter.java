@@ -1,12 +1,15 @@
 package com.modusbox.client.router;
 
+import com.modusbox.client.customexception.CCCustomException;
 import com.modusbox.client.exception.RouteExceptionHandlingConfigurer;
 import com.modusbox.client.processor.CorsFilter;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Histogram;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.http.base.HttpOperationFailedException;
 import org.apache.camel.model.dataformat.JsonLibrary;
+import org.json.JSONException;
 
 public class PartiesRouter extends RouteBuilder {
 
@@ -65,10 +68,15 @@ public class PartiesRouter extends RouteBuilder {
 				 */
 				.to("direct:getAuthHeader")
 
+				.process(exchange -> System.out.println())
+
 				.marshal().json()
 				.transform((datasonnet("resource:classpath:mappings/postCollectRequest.ds")))
 				.setBody(simple("${body.content}"))
+				.process(exchange -> System.out.println())
 				.marshal().json(JsonLibrary.Gson)
+
+				.process(exchange -> System.out.println())
 
 				.removeHeaders("CamelHttp*")
 				.removeHeader(Exchange.HTTP_URI)
@@ -83,6 +91,14 @@ public class PartiesRouter extends RouteBuilder {
 //				.unmarshal().json(JsonLibrary.Gson)
 
 //				.marshall().json()
+				.unmarshal().json()
+//.process(exchange -> System.out.println())
+				.choice()
+				    .when(simple("${body['code']} != 200"))
+				        .to("direct:catchCBSError")
+				.endDoTry()
+//.process(exchange -> System.out.println())
+				.marshal().json()
 				.transform(datasonnet("resource:classpath:mappings/getPartiesResponse.ds"))
 				.setBody(simple("${body.content}"))
 				.marshal().json()
@@ -98,6 +114,8 @@ public class PartiesRouter extends RouteBuilder {
 				 */
 				.to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
 						"'Send response, " + ROUTE_ID + "', null, null, 'Output Payload: ${body}')") // default logging
+				.doCatch(CCCustomException.class, HttpOperationFailedException.class, JSONException.class)
+				    .to("direct:extractCustomErrors")
 				.doFinally().process(exchange -> {
 			((Histogram.Timer) exchange.getProperty(TIMER_NAME)).observeDuration(); // stop Prometheus Histogram metric
 		}).end()
