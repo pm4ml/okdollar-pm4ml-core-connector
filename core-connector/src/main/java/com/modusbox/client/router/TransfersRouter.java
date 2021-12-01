@@ -118,8 +118,7 @@ public class TransfersRouter extends RouteBuilder {
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Calling backend API, post transfers, POST {{dfsp.host}}', " +
                         "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
-//                .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
-                .toD("https://okdpayment.free.beeceptor.com/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
+                .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
                 .unmarshal().json(JsonLibrary.Gson)
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Response from backend API, post transfers: ${body}', " +
