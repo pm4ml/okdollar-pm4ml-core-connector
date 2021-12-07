@@ -121,50 +121,5 @@ public class PartiesRouter extends RouteBuilder {
 		}).end()
 		;
 
-		from("direct:getPartiesByIdTypeIdValueIdSubValue").routeId(ROUTE_ID_SUB).doTry()
-				.process(exchange -> {
-					requestCounterSub.inc(1); // increment Prometheus Counter metric
-					exchange.setProperty(TIMER_NAME_SUB, requestLatencySub.startTimer()); // initiate Prometheus Histogram metric
-				})
-				.to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-						"'Request received, " + ROUTE_ID_SUB + "', null, null, null)") // default logging
-				/*
-				 * BEGIN processing
-				 *
-				 */
-				.to("direct:getAuthHeader")
-
-				.marshal().json()
-				.transform((datasonnet("resource:classpath:mappings/postCollectRequestSub.ds")))
-				.setBody(simple("${body.content}"))
-				.marshal().json(JsonLibrary.Gson)
-
-				.removeHeaders("CamelHttp*")
-				.removeHeader(Exchange.HTTP_URI)
-				.setHeader("Content-Type", constant("application/json"))
-				.setHeader("Accept", constant("application/json"))
-				.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-				.to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-						"'Calling backend API, getParties', " +
-						"'Tracking the request', 'Track the response', " +
-						"'Request sent to, GET {{dfsp.host}}/parties/${header.idType}/${header.idValue}/${header.idSubValue}')")
-				.toD("{{dfsp.host}}/okdollar/v1/GetOKUserInfos?bridgeEndpoint=true&throwExceptionOnFailure=false")
-				.unmarshal().json(JsonLibrary.Gson)
-
-				// Add CORS headers
-				.process(corsFilter)
-
-				.to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-						"'Response from backend API, getParties: ${body}', " +
-						"'Tracking the response', 'Verify the response', null)")
-				/*
-				 * END processing
-				 */
-				.to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-						"'Send response, " + ROUTE_ID_SUB + "', null, null, 'Output Payload: ${body}')") // default logging
-				.doFinally().process(exchange -> {
-			((Histogram.Timer) exchange.getProperty(TIMER_NAME_SUB)).observeDuration(); // stop Prometheus Histogram metric
-		}).end()
-		;
 	}
 }
