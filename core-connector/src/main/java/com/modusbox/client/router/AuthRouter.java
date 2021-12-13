@@ -1,9 +1,11 @@
 package com.modusbox.client.router;
 
 import com.modusbox.client.exception.RouteExceptionHandlingConfigurer;
+import com.modusbox.client.processor.CorsFilter;
+import com.modusbox.client.processor.EncodeAuthHeader;
+import com.modusbox.client.processor.TokenStore;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.dataformat.JsonLibrary;
 
 public class AuthRouter extends RouteBuilder {
 
@@ -28,6 +30,12 @@ public class AuthRouter extends RouteBuilder {
                 .setHeader(Exchange.HTTP_METHOD, constant("POST"))
                 .setBody(constant(""))
                 .marshal().json()
+
+                .setProperty("token", method(TokenStore.class, "getAccessToken()"))
+
+                .choice()
+                .when(method(TokenStore.class, "getAccessToken()").isEqualTo(""))
+
                 .transform(datasonnet("resource:classpath:mappings/postAuthTokenRequest.ds"))
                 .setBody(simple("${body.content}"))
                 .marshal().json()
@@ -48,15 +56,21 @@ public class AuthRouter extends RouteBuilder {
                         "null, " +
                         "null, " +
                         "'Response from POST {{dfsp.host}}" + PATH + ", OUT Payload: ${body}')")
-                .setHeader("token", simple("${body['data']['token']}"))
+//                    .process(exchange -> System.out.println())
+                .setProperty("token", simple("${body['data']['token']}"))
+                .setProperty("tokenExpiration", simple("${body['data']['ExpiresIn']}"))
+//                    .process(exchange -> System.out.println())
+                .bean(TokenStore.class, "setAccessToken(${exchangeProperty.token}, ${exchangeProperty.tokenExpiration})")
+//                    .process(exchange -> System.out.println())
                 .to("bean:customJsonMessage?method=logJsonMessage(" +
                         "'info', " +
                         "${header.X-CorrelationId}, " +
                         "'Auth Token caught from " + PATH_NAME + "', " +
                         "null, " +
                         "null, " +
-                        "'token: ${header.token}')")
+                        "'token: ${exchangeProperty.token}')")
                 .removeHeaders("CamelHttp*")
+                .end()
                 .setBody(simple("${exchangeProperty.downstreamRequestBody}"))
         ;
     }

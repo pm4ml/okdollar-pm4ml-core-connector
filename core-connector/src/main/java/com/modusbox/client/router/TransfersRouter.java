@@ -104,6 +104,7 @@ public class TransfersRouter extends RouteBuilder {
 
                 .setProperty("origPayload", simple("${body}"))
                 .to("direct:getAuthHeader")
+                .setHeader("token", simple("${exchangeProperty.token}"))
 
                 .marshal().json()
                 .transform(datasonnet("resource:classpath:mappings/putTransactionRequest.ds"))
@@ -123,7 +124,7 @@ public class TransfersRouter extends RouteBuilder {
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Response from backend API, post transfers: ${body}', " +
                         "'Tracking the response', 'Verify the response', null)")
-                .process(exchange -> System.out.println())
+//                .process(exchange -> System.out.println())
                 .choice()
                     .when(simple("${body['code']} != 200"))
                         .to("direct:catchCBSError")
