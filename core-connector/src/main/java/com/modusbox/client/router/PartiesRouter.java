@@ -67,16 +67,17 @@ public class PartiesRouter extends RouteBuilder {
 				 * BEGIN processing
 				 */
 				.to("direct:getAuthHeader")
+				.setHeader("token", simple("${exchangeProperty.token}"))
 
-				.process(exchange -> System.out.println())
+//				.process(exchange -> System.out.println())
 
 				.marshal().json()
 				.transform((datasonnet("resource:classpath:mappings/postCollectRequest.ds")))
 				.setBody(simple("${body.content}"))
-				.process(exchange -> System.out.println())
+//				.process(exchange -> System.out.println())
 				.marshal().json(JsonLibrary.Gson)
 
-				.process(exchange -> System.out.println())
+//				.process(exchange -> System.out.println())
 
 				.removeHeaders("CamelHttp*")
 				.removeHeader(Exchange.HTTP_URI)

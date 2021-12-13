@@ -1,34 +1,9 @@
 package com.modusbox.client.processor;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 
 public class TokenStore {
-    //////////////////// Refresh Token methods ////////////////////
-    public static String refreshToken = "";
-    public static Instant refreshTokenExpirationTimestamp = Instant.now();
-
-    public String getRefreshToken() {
-        if (hasRefreshTokenExpired()){
-            return "";
-        }
-        return refreshToken;
-    }
-
-    //  Format of t is UUID: "083464d7-a606-4423-a2fb-fc3ce0de8abe"
-    //  Format of e is UTC: "2021-10-12T07:53:08.998Z"
-    public void setRefreshToken(String t, String e) {
-        refreshToken = t;
-        refreshTokenExpirationTimestamp = Instant.parse(e);
-    }
-
-    public boolean hasRefreshTokenExpired() {
-        if (refreshToken.equals("")) {
-            return true;
-        } else if (refreshTokenExpirationTimestamp.isBefore(Instant.now())) {
-            return true;
-        }
-        return false;
-    }
 
     //////////////////// Access Token methods ////////////////////
     public static String accessToken = "";
@@ -42,10 +17,10 @@ public class TokenStore {
     }
 
     //  Format of t is UUID: "083464d7-a606-4423-a2fb-fc3ce0de8abe"
-    //  Format of e is in seconds: "3600"
+    //  Format of e is in hours: "1h"
     public void setAccessToken(String t, String e) {
         accessToken = t;
-        accessTokenExpirationTimestamp = Instant.now().plusSeconds(Long.parseLong(e));
+        accessTokenExpirationTimestamp = Instant.now().plus(Long.parseLong((e.substring(0, e.length() - 1))), ChronoUnit.HOURS);
     }
 
     public boolean hasAccessTokenExpired() {
