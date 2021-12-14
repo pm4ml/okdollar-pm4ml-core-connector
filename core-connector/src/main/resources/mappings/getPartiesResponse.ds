@@ -2,5 +2,6 @@
   type: "BUSINESS",
   idType: cml.header('idType'),
   idValue: cml.header('idValue'),
-  displayName: payload.data.MercantName
+  displayName: payload.data.MercantName,
+  lastName: payload.data.MercantName
  }
