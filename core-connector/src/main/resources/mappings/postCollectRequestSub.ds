@@ -1,5 +1,0 @@
-{
-    "NrcNumber": cml.header('idValue'),
-    "MobileNumber": cml.header('idSubValue'),
-    "Channel": 1
-}
