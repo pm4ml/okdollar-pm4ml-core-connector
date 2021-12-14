@@ -30,6 +30,8 @@
     projectid: id
     bankaccountnumber: 34878539475
     channel: 0
+    phoneprefix: 0095
+    nrcnumber: ABCMBC
 
   ### properties for Mojaloop Connector connection
   ml-conn:
