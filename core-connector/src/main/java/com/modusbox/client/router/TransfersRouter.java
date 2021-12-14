@@ -146,5 +146,49 @@ public class TransfersRouter extends RouteBuilder {
                 }).end()
         ;
 
+        from("direct:getTransfersByTransferId").routeId(ROUTE_ID_PUT).doTry()
+                .process(exchange -> {
+                    requestCounterPut.inc(1); // increment Prometheus Counter metric
+                    exchange.setProperty(TIMER_NAME_PUT, requestLatencyPut.startTimer()); // initiate Prometheus Histogram metric
+                })
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Request received, GET /transfers/${header.transferId}', " +
+                        "null, null, null)")
+                /*
+                 * BEGIN processing
+                 */
+
+                .removeHeaders("CamelHttp*")
+                .setHeader("Content-Type", constant("application/json"))
+                .setHeader("Accept", constant("application/json"))
+                .setHeader(Exchange.HTTP_METHOD, constant("GET"))
+
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Calling Hub API, get transfers, GET {{dfsp.host}}', " +
+                        "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
+                .toD("{{ml-conn.outbound.host}}/transfers/${header.transferId}?bridgeEndpoint=true&throwExceptionOnFailure=false")
+                .unmarshal().json(JsonLibrary.Gson)
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Response from Hub API, get transfers: ${body}', " +
+                        "'Tracking the response', 'Verify the response', null)")
+//                .process(exchange -> System.out.println())
+
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/getTransfersResponse.ds"))
+                .setBody(simple("${body.content}"))
+                .marshal().json()
+
+                /*
+                 * END processing
+                 */
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Final Response: ${body}', " +
+                        "null, null, 'Response of GET /transfers/${header.transferId} API')")
+
+                .doFinally().process(exchange -> {
+            ((Histogram.Timer) exchange.getProperty(TIMER_NAME_PUT)).observeDuration(); // stop Prometheus Histogram metric
+        }).end()
+        ;
+
     }
 }
