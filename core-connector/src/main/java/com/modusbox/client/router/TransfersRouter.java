@@ -16,6 +16,7 @@ public class TransfersRouter extends RouteBuilder {
 
     private static final String ROUTE_ID = "com.modusbox.postTransfers";
     private static final String ROUTE_ID_PUT = "com.modusbox.putTransfersByTransferId";
+    private static final String ROUTE_ID_GET = "com.modusbox.getTransfersByTransferId";
     private static final String COUNTER_NAME = "counter_post_transfers_requests";
     private static final String COUNTER_NAME_PUT = "counter_put_transfers_requests";
     private static final String TIMER_NAME = "histogram_post_transfers_timer";
@@ -146,7 +147,7 @@ public class TransfersRouter extends RouteBuilder {
                 }).end()
         ;
 
-        from("direct:getTransfersByTransferId").routeId(ROUTE_ID_PUT).doTry()
+        from("direct:getTransfersByTransferId").routeId(ROUTE_ID_GET).doTry()
                 .process(exchange -> {
                     requestCounterPut.inc(1); // increment Prometheus Counter metric
                     exchange.setProperty(TIMER_NAME_PUT, requestLatencyPut.startTimer()); // initiate Prometheus Histogram metric
