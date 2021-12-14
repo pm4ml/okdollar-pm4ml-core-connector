@@ -1,5 +1,5 @@
 {
-    "NrcNumber": "ABCMBC",
-    "MobileNumber": cml.header('idValue'),
-    "Channel": 1
+    "NrcNumber": cml.properties("dfsp.nrcnumber"),
+    "MobileNumber": cml.properties("dfsp.phoneprefix") + ds.strings.substringAfter(cml.header('idValue'), "0"),
+    "Channel": cml.properties("dfsp.channel")
 }
