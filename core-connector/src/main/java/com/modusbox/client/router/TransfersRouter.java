@@ -19,6 +19,7 @@ public class TransfersRouter extends RouteBuilder {
     private static final String ROUTE_ID_GET = "com.modusbox.getTransfersByTransferId";
     private static final String COUNTER_NAME = "counter_post_transfers_requests";
     private static final String COUNTER_NAME_PUT = "counter_put_transfers_requests";
+    private static final String COUNTER_NAME_GET = "counter_get_transfers_requests";
     private static final String TIMER_NAME = "histogram_post_transfers_timer";
     private static final String TIMER_NAME_PUT = "histogram_put_transfers_timer";
     private static final String TIMER_NAME_GET = "histogram_get_transfers_timer";
