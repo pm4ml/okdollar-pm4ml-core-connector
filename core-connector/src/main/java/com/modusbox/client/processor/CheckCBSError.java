@@ -37,7 +37,7 @@ public class CheckCBSError implements Processor {
                     throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.GENERIC_DOWNSTREAM_ERROR_PAYEE, "Inactive Customer"));
                 }
                 else if (errorMessage.equals("Invalid OK$ Account")) {
-                    throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.GENERIC_DOWNSTREAM_ERROR_PAYEE, "Invalid OK$ Account"));
+                    throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.GENERIC_ID_NOT_FOUND, "Invalid OK$ Account"));
                 }
                 else if (errorMessage.equals("Information is wrong")) {
                     throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.GENERIC_DOWNSTREAM_ERROR_PAYEE, "Information is wrong"));
