@@ -188,12 +188,12 @@ public class TransfersRouter extends RouteBuilder {
 //                .process(exchange -> System.out.println())
 
                 .choice()
-                    .when(simple("${body.payload.fulfil.body.transferState} != null"))
+                    .when(simple("${body.fulfil.body.transferState} != null"))
                         .marshal().json()
                         .transform(datasonnet("resource:classpath:mappings/getTransfersResponse.ds"))
                         .setBody(simple("${body.content}"))
                         .marshal().json()
-                        .end()
+                        .endChoice()
 
                 /*
                  * END processing
