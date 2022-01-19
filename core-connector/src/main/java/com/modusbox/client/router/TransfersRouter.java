@@ -178,7 +178,7 @@ public class TransfersRouter extends RouteBuilder {
                 .setHeader(Exchange.HTTP_METHOD, constant("GET"))
 
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-                        "'Calling Hub API, get transfers, GET {{dfsp.host}}', " +
+                        "'Calling Hub API, get transfers, GET {{ml-conn.outbound.host}}', " +
                         "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
                 .toD("{{ml-conn.outbound.host}}/transfers/${header.transferId}?bridgeEndpoint=true&throwExceptionOnFailure=false")
                 .unmarshal().json(JsonLibrary.Gson)
@@ -199,6 +199,9 @@ public class TransfersRouter extends RouteBuilder {
                         "'Final Response: ${body}', " +
                         "null, null, 'Response of GET /transfers/${header.transferId} API')")
 
+                .doCatch(Exception.class).onWhen(exceptionMessage().contains("Field does not exist"))
+                    .setBody(constant("{\"mojaloopTransferState\": \"NOT FOUND\"}"))
+                    .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(404))
                 .doCatch(CCCustomException.class, HttpOperationFailedException.class, JSONException.class)
                     .to("direct:extractCustomErrors")
                 .doFinally().process(exchange -> {
