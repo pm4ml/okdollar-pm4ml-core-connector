@@ -194,6 +194,14 @@ public class TransfersRouter extends RouteBuilder {
                 .setBody(simple("${body.content}"))
                 .marshal().json()
                 .endDoTry()
+            
+                .choice()
+                .when(simple("${body['fulfil']} == null"))
+                    .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'TransferState is null', " +
+                        "null, null, null)")
+                    .to("direct:extractCustomErrors")
+                .endDoTry()
 
                 /*
                  * END processing
