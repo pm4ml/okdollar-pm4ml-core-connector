@@ -29,13 +29,16 @@ public class CheckMojaloopError implements Processor {
             if (errorCode == 3208) {
                 customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
                         "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
-                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.GENERIC_DOWNSTREAM_ERROR_PAYEE, "Transfer ID not found - Provided Transfer ID was not found on the server."));
+                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.TRANSFER_ID_NOT_FOUND));
             }
             else {
+                customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
+                        "Processing the exception at CheckMojaloopError, unhandled error code", null, null, respObject.toString());
                 throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "Error while retrieving transfer state, please retry later."));
             }
         } catch (JSONException e) {
             System.out.println("Problem extracting error code from Mojaloop error response occurred.");
+            throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR));
         }
 
     }
