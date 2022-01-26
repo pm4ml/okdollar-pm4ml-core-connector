@@ -148,7 +148,6 @@ public class SendMoneyRouter extends RouteBuilder {
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Response from outbound API, putTransfersById: ${body}', " +
                         "'Tracking the response', 'Verify the response', null)")
-                .log("AcceptQuote: ${body}")
 
                 // Add CORS headers
                 .process(corsFilter)
@@ -175,10 +174,9 @@ public class SendMoneyRouter extends RouteBuilder {
                         .marshal().json()
                         .process(setErrorMessagesForInactiveLoans)
 
-                        //.unmarshal().json()
                         .transform(datasonnet("resource:classpath:mappings/getInactiveAccountError.ds"))
                         .setBody(simple("${body.content}"))
-                       // .log("${body.content}")
+
                        .log("frinedlyMessage: ${exchangeProperty.friendlyErrorMessage}")
 
                 .end()

@@ -26,6 +26,8 @@ public final class CoreConnectorAPI extends RouteBuilder {
                 //.logContinued(true).logRetryAttempted(true).logExhausted(true).logStackTrace(true)
                 //.retryAttemptedLogLevel(LoggingLevel.INFO).retriesExhaustedLogLevel(LoggingLevel.INFO)
                 //.maximumRedeliveries(3).redeliveryDelay(250).backOffMultiplier(2).useExponentialBackOff()
+                .setProperty("locale", constant("{{dfsp.locale}}"))
+                .log("Locale in Router: {{dfsp.locale}}")
 
                 .handled(true)
                 .log("-- processing error")
