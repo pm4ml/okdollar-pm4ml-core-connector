@@ -32,6 +32,7 @@
     channel: 0
     phoneprefix: 0095
     nrcnumber: ABCMBC
+    locale: my
 
   ### properties for Mojaloop Connector connection
   ml-conn:
