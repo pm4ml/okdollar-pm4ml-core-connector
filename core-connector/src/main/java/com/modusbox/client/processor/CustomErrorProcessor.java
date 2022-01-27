@@ -66,13 +66,29 @@ public class CustomErrorProcessor implements Processor {
                             // Replace 2 or more whitespace chars with just one
                             detailedDescription = respObject.getString("message").replaceAll("\\s+", " ");
                             try {
-                                originErrorMsg = respObject.getJSONObject("transferState").getJSONObject("lastError").getJSONObject("mojaloopError").getJSONObject("errorInformation").getString("errorDescription");
-
+                                //checking gateway timeout
+                                if(statusCode.equals("504"))
+                                {
+                                    statusCode = "2004";
+                                    originErrorMsg = String.valueOf(respObject.getJSONObject("transferState"));
+                                }
+                                else if(statusCode.equals("400"))
+                                {
+                                    statusCode="3100";
+                                    originErrorMsg = String.valueOf(respObject);
+                                }
+                                else
+                                {
+                                    originErrorMsg = respObject.getJSONObject("transferState").getJSONObject("lastError").getJSONObject("mojaloopError").getJSONObject("errorInformation").getString("errorDescription");
+                                }
                                 jsonObjectMessage  = ErrorCode.getMojaloopErrorResponseByStatusCode(statusCode, locale);
                                 errorResponse      = new JSONObject(jsonObjectMessage).getJSONObject("errorInformation");
                                 errorMessage       = errorResponse.getString("description");
                                 errorMessageLocale = errorResponse.getString("descriptionLocale");
 
+                                if (!statusCode.equals(String.valueOf(errorResponse.getInt("statusCode")))) {
+                                    statusCode = String.valueOf(errorResponse.getInt("statusCode"));
+                                }
                                 //Update Rounding Value Error Message
                                 if(statusCode.equals("5241")){
                                     String lastWord = originErrorMsg.substring(originErrorMsg.lastIndexOf(" ")+1);
