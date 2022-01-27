@@ -80,11 +80,10 @@ public class CustomErrorProcessor implements Processor {
                                     lastWord = CharMatcher.is('.').trimTrailingFrom(lastWord);
 
                                     if (lastWord.length() > 0 && lastWord.matches("[0-9]+")) {
-                                        String numberRefined = lastWord.replaceAll("[^0-9]", "");
-                                        System.out.println("Refined string of Rounding Value: " + numberRefined) ;
+                                        System.out.println("Refined string of Rounding Value: " + lastWord) ;
 
-                                        errorMessage = errorMessage.replaceAll("XXXX", numberRefined);
-                                        errorMessageLocale = errorMessageLocale.replaceAll("XXXX", numberRefined);
+                                        errorMessage = errorMessage.replaceAll("XXXX", lastWord);
+                                        errorMessageLocale = errorMessageLocale.replaceAll("XXXX", lastWord);
                                     }
                                     else {
                                         System.out.println("There are not all digits in Rounding Value.");
