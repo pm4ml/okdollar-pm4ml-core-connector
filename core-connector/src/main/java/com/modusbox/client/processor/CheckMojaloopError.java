@@ -24,18 +24,22 @@ public class CheckMojaloopError implements Processor {
         String errorMessage = "";
 
         try {
-            errorCode = respObject.getInt("statusCode");
-            errorMessage = respObject.getString("message");
-            if (errorCode == 3208) {
-                customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
+            customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
                         "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
-                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.TRANSFER_ID_NOT_FOUND));
-            }
-            else {
-                customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
-                        "Processing the exception at CheckMojaloopError, unhandled error code", null, null, respObject.toString());
-                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "Error while retrieving transfer state, please retry later."));
-            }
+            throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, respObject.toString());
+            
+//            errorCode = respObject.getInt("statusCode");
+//            errorMessage = respObject.getString("message");
+//            if (errorMessage =! null) {
+//                customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
+//                        "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
+//                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.TRANSFER_ID_NOT_FOUND), errorMessage);
+//            }
+//            else {
+//                customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
+//                        "Processing the exception at CheckMojaloopError, unhandled error code", null, null, respObject.toString());
+//                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, "Error while retrieving transfer state, please retry later."));
+//            }
         } catch (JSONException e) {
             System.out.println("Problem extracting error code from Mojaloop error response occurred.");
             throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR));
