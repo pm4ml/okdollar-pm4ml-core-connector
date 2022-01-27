@@ -38,7 +38,7 @@ public class CheckMojaloopError implements Processor {
                     throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.MALFORMED_SYNTAX));
                 }
                 else {
-                    throw new CCCustomException(ErrorCode.getErrorResponse(GENERIC_VALIDATION_ERROR));
+                    throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.GENERIC_VALIDATION_ERROR));
                 }
             }
             else {
