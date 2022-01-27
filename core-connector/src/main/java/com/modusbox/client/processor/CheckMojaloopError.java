@@ -31,6 +31,11 @@ public class CheckMojaloopError implements Processor {
                         "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
                 throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.TRANSFER_ID_NOT_FOUND));
             }
+            else if (errorCode == 400) {
+                customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
+                        "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
+                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.MALFORMED_SYNTAX, errorMessage));
+            }
             else {
             customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
                         "Processing the exception at CheckMojaloopError, unhandled error code", null, null, respObject.toString());
