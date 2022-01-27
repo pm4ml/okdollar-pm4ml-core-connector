@@ -26,7 +26,7 @@ public class CheckMojaloopError implements Processor {
         try {
             customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
                         "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
-            throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, respObject.toString());
+            throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, respObject.toString()));
             
 //            errorCode = respObject.getInt("statusCode");
 //            errorMessage = respObject.getString("message");
