@@ -1,5 +1,5 @@
 {
   "transferId": payload.transferId,
-  "transactionState": payload.currentState,
-  "transferState": payload.fulfil.body.transferState
+  "transferState": payload.fulfil.body.transferState,
+  "completedTimestamp": payload.fulfil.body.completedTimestamp
 }
