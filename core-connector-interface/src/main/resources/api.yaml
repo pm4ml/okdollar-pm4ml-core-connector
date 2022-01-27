@@ -1648,17 +1648,20 @@ components:
         
     transferStatusResponse:
       type: object
-      required:
-        - transferId
-        - transactionState
-        - transferState
       properties:
         transferId:
           $ref: '#/components/schemas/mojaloopIdentifier'
-        transactionState:
-          $ref: '#/components/schemas/mojaloopTransactionState'
-        transferState:
-          $ref: '#/components/schemas/mojaloopTransferState'
+        currentState:
+          $ref: '#/components/schemas/transferStatus'
+        fulfil:
+          type: object
+          required:
+            - body
+          properties:
+            body:
+              $ref: '#/components/schemas/transferFulfilment'
+            headers:
+              type: object
 
   responses:
     '400':
