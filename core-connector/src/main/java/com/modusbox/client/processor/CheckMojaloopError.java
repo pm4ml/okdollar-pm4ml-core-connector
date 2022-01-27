@@ -29,7 +29,7 @@ public class CheckMojaloopError implements Processor {
             if (errorCode == 3208) {
                 customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
                         "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
-                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.TRANSFER_ID_NOT_FOUND.getDefaultMessage()));
+                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.TRANSFER_ID_NOT_FOUND));
             }
             else {
             customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
