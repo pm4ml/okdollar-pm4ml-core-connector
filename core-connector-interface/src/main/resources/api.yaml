@@ -904,6 +904,20 @@ components:
         - RESERVED The Switch has reserved the transfer.
         - COMMITTED The Switch has successfully performed the transfer.
         - ABORTED The Switch has aborted the transfer due a rejection or failure to perform the transfer.
+        
+    mojaloopTransactionState:
+      type: string
+      enum:
+        - RECEIVED
+        - PENDING
+        - COMPLETED
+        - REJECTED
+      description: >
+        Below are the allowed values for the enumeration
+        - RECEIVED Payee FSP has received the transaction from the Payer FSP.
+        - PENDING Payee FSP has validated the transaction.
+        - COMPLETED Payee FSP has successfully performed the transaction.
+        - REJECTED Payee FSP has failed to perform the transaction.
 
     money:
       pattern: ^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$
@@ -1636,26 +1650,15 @@ components:
       type: object
       required:
         - transferId
-        - currentState
-        - fulfil
+        - transactionState
+        - transferState
       properties:
         transferId:
           $ref: '#/components/schemas/mojaloopIdentifier'
-        currentState:
-          $ref: '#/components/schemas/transferStatus'
-        initiatedTimestamp:
-          $ref: '#/components/schemas/timestamp'        
-        direction:
-          type: string        
-        fulfil:
-          type: object
-          required:
-            - body
-          properties:
-            body:
-              $ref: '#/components/schemas/transferFulfilment'
-            headers:
-              type: object
+        transactionState:
+          $ref: '#/components/schemas/mojaloopTransactionState'
+        transferState:
+          $ref: '#/components/schemas/mojaloopTransferState'
 
   responses:
     '400':
