@@ -34,7 +34,12 @@ public class CheckMojaloopError implements Processor {
             else if (errorCode == 400) {
                 customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
                         "Processing the exception at CheckMojaloopError", null, null, respObject.toString());
-                throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.MALFORMED_SYNTAX, errorMessage));
+                if (errorMessage.startsWith(".path.transferId should match pattern")) {
+                    throw new CCCustomException(ErrorCode.getErrorResponse(ErrorCode.MALFORMED_SYNTAX));
+                }
+                else {
+                    throw new CCCustomException(ErrorCode.getErrorResponse(GENERIC_VALIDATION_ERROR));
+                }
             }
             else {
             customJsonMessage.logJsonMessage("error", String.valueOf(exchange.getIn().getHeader("X-CorrelationId")),
