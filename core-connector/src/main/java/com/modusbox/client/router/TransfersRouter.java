@@ -181,6 +181,9 @@ public class TransfersRouter extends RouteBuilder {
                         "'Calling Hub API, get transfers, GET {{ml-conn.outbound.host}}', " +
                         "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
                 .toD("{{ml-conn.outbound.host}}/transfers/${header.transferId}?bridgeEndpoint=true&throwExceptionOnFailure=false")
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Response from Hub API, get transfers: ${body}', " +
+                        "'Tracking the response', 'Verify the response', null)")
                 .unmarshal().json(JsonLibrary.Gson)
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Response from Hub API, get transfers: ${body}', " +
@@ -195,14 +198,14 @@ public class TransfersRouter extends RouteBuilder {
            
 //                .process(exchange -> System.out.println())
             
-//                .choice()
-//                .when(simple("${body['fulfil']} != null"))
+                .choice()
+                .when(simple("${body['fulfil']} != null"))
 //                .process(exchange -> System.out.println())            
-//                .marshal().json()
-//                .transform(datasonnet("resource:classpath:mappings/getTransfersResponse.ds"))
-//                .setBody(simple("${body.content}"))
-//                .marshal().json()
-//                .endDoTry()
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/getTransfersResponse.ds"))
+                .setBody(simple("${body.content}"))
+                .marshal().json()
+                .endDoTry()
             
                 /*
                  * END processing
