@@ -136,30 +136,41 @@ public class SendMoneyRouter extends RouteBuilder {
 
                 // Will convert to JSON and only take the accept quote section
                 .marshal().json()
-                .transform(datasonnet("resource:classpath:mappings/retrieveAcceptParty.ds"))
+                .transform(datasonnet("resource:classpath:mappings/retrieveAcceptPartyAndQuote.ds"))
                 .setBody(simple("${body.content}"))
 
 //                .process(exchange -> System.out.println())
 
                 .choice()
                 .when(simple("${body['acceptParty']} == false"))
-//                      .process(exchange -> System.out.println())
+//               .process(exchange -> System.out.println())
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-                        "'Payer did not confirm payee, cancelling transfer id: ${header.transferId}', " +
+                        "'Payer did not confirm payee for transfer id: ${header.transferId}', " +
+                        "null, null, null)")
+                .when(simple("${body['acceptQuote']} == false"))
+//                .process(exchange -> System.out.println())
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Payer did not confirm quote for transfer id: ${header.transferId}', " +
                         "null, null, null)")
                 .otherwise()
                 .marshal().json()
+
+//                .process(exchange -> System.out.println())                
 
                 .setBody(exchangeProperty("origPayload"))
                 .marshal().json()
                 .transform(datasonnet("resource:classpath:mappings/putTransfersAcceptQuoteRequest.ds"))
                 .setBody(simple("${body.content}"))
+                .marshal().json()
+
+//                .process(exchange -> System.out.println())
+
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Calling outbound API, putTransfersById', " +
                         "'Tracking the request', 'Track the response', " +
                         "'Request sent to PUT {{ml-conn.outbound.host}}/transfers/${header.transferId}, with body: ${body}')")
 
-                .process(exchange -> System.out.println())
+//                .process(exchange -> System.out.println())
 
                 .toD("{{ml-conn.outbound.host}}/transfers/${header.transferId}?bridgeEndpoint=true")
                 .unmarshal().json()
