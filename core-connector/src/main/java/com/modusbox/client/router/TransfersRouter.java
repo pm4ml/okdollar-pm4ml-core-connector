@@ -93,10 +93,15 @@ public class TransfersRouter extends RouteBuilder {
 //                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
 //                         "'Response from backend API, postTransfers: ${body}', " +
 //                         "'Tracking the response', 'Verify the response', null)")
-                .setBody(constant("{\"homeTransactionId\": \"1234\"}"))
+                //.setBody(constant("{\"homeTransactionId\": \"1234\"}"))
                 /*
                  * END processing
                  */
+                .setProperty("origPayload", simple("${body}"))
+                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+                .setBody(constant(""))
+
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
                         "'Send response, " + ROUTE_ID + "', null, null, 'Output Payload: ${body}')") // default logging
                 .doFinally().process(exchange -> {
@@ -131,12 +136,12 @@ public class TransfersRouter extends RouteBuilder {
                 .setHeader(Exchange.HTTP_METHOD, constant("POST"))
 
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-                        "'Calling backend API, post transfers, POST {{dfsp.host}}', " +
+                        "'Calling backend API, put transfers, POST {{dfsp.host}}', " +
                         "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
                 .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
                 .unmarshal().json(JsonLibrary.Gson)
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-                        "'Response from backend API, post transfers: ${body}', " +
+                        "'Response from backend API, put transfers: ${body}', " +
                         "'Tracking the response', 'Verify the response', null)")
 //                .process(exchange -> System.out.println())
                 .choice()
@@ -144,8 +149,10 @@ public class TransfersRouter extends RouteBuilder {
                         .to("direct:catchCBSError")
                 .endDoTry()
 
-                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
-                .setBody(constant(""))
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/putTransactionResponse.ds"))
+                .setBody(simple("${body.content}"))
+                .marshal().json(JsonLibrary.Gson)
 
                 /*
                  * END processing
