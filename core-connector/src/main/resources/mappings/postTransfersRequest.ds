@@ -1,10 +1,10 @@
 {
-    "BankAccountNumber": std.substr(payload.from.idValue,0,3),
+    "BankAccountNumber": payload.to.idValue,
     "TransactionId": payload.transferId,
     "DesitinationNumber": payload.to.idValue,
     "Amount": payload.amount,
-    "Comments": "",
-    "MobileNumber": std.substr(payload.from.idValue,0,3),
+    "Comments": payload.note,
+    "MobileNumber": payload.from.idValue,
     "SimId": "",
     "MsId": "",
     "Latitude": "0.0",
