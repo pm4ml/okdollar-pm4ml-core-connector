@@ -94,23 +94,55 @@ public class TransfersRouter extends RouteBuilder {
 //                         "'Response from backend API, postTransfers: ${body}', " +
 //                         "'Tracking the response', 'Verify the response', null)")
                 //.setBody(constant("{\"homeTransactionId\": \"1234\"}"))
+
+                .setProperty("origPayload", simple("${body}"))
+                .to("direct:getAuthHeader")
+                .setHeader("token", simple("${exchangeProperty.token}"))
+
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/postTransfersRequest.ds"))
+                .setBody(simple("${body.content}"))
+                .marshal().json()
+
+                .removeHeaders("CamelHttp*")
+                .setHeader("Content-Type", constant("application/json"))
+                .setHeader("Accept", constant("application/json"))
+                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
+
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Calling backend API, put transfers, POST {{dfsp.host}}', " +
+                        "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
+                .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
+                .unmarshal().json(JsonLibrary.Gson)
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Response from backend API, post transfers: ${body}', " +
+                        "'Tracking the response', 'Verify the response', null)")
+
+                .choice()
+                    .when(simple("${body['code']} != 200"))
+                        .to("direct:catchCBSError")
+                .endDoTry()
+
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/postTransfersResponse.ds"))
+                .setBody(simple("${body.content}"))
+                .marshal().json(JsonLibrary.Gson)
+
                 /*
                  * END processing
                  */
-                .setProperty("origPayload", simple("${body}"))
-                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
-                .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-                .setBody(constant(""))
-
                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-                        "'Send response, " + ROUTE_ID + "', null, null, 'Output Payload: ${body}')") // default logging
+                        "'Final Response: ${body}', " +
+                        "null, null, 'Response of post /transfers API')")
+                .doCatch(CCCustomException.class, HttpOperationFailedException.class, JSONException.class)
+                    .to("direct:extractCustomErrors")
                 .doFinally().process(exchange -> {
-            ((Histogram.Timer) exchange.getProperty(TIMER_NAME)).observeDuration(); // stop Prometheus Histogram metric
-        }).end()
+                    ((Histogram.Timer) exchange.getProperty(TIMER_NAME)).observeDuration(); // stop Prometheus Histogram metric
+                }).end()
         ;
 
         from("direct:putTransfersByTransferId").routeId(ROUTE_ID_PUT).doTry()
-                .process(exchange -> {
+                        .process(exchange -> {
                     requestCounterPut.inc(1); // increment Prometheus Counter metric
                     exchange.setProperty(TIMER_NAME_PUT, requestLatencyPut.startTimer()); // initiate Prometheus Histogram metric
                 })
