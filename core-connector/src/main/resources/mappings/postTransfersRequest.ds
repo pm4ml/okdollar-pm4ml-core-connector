@@ -1,7 +1,16 @@
 {
-  "amount": payload.amount,
-  [if (std.objectHas(payload, "transferId") && payload.transferId != null)
-   then "externalId"]: payload.transferId,
-  [if (std.objectHas(payload, "note") && payload.note != null)
-   then "note"]: payload.note
+    "BankAccountNumber": std.substr(payload.from.idValue,0,3),
+    "TransactionId": payload.transferId,
+    "DesitinationNumber": payload.to.idValue,
+    "Amount": payload.amount,
+    "Comments": "",
+    "MobileNumber": std.substr(payload.from.idValue,0,3),
+    "SimId": "",
+    "MsId": "",
+    "Latitude": "0.0",
+    "Longitude": "0.0",
+    "CellId": "0",
+    "ProfileImg": "",
+    "ProjectId": cml.properties("dfsp.projectid"),
+    "Channel": cml.properties("dfsp.channel")
 }
