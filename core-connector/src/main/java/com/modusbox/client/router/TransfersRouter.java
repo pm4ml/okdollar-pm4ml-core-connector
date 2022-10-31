@@ -46,7 +46,7 @@ public class TransfersRouter extends RouteBuilder {
             .name(HISTOGRAM_NAME_PUT)
             .help("Request latency in seconds for PUT /transfers/{transferId}.")
             .register();
-    
+
     public static final Counter requestCounterGet = Counter.build()
             .name(COUNTER_NAME_GET)
             .help("Total requests for GET /transfers/{transferId}.")
@@ -72,7 +72,7 @@ public class TransfersRouter extends RouteBuilder {
                 /*
                  * BEGIN processing
                  */
-                 .setProperty("origPayload", simple("${body}"))
+//                 .setProperty("origPayload", simple("${body}"))
 //                 .to("direct:getAuthHeader")
 
 //                 .marshal().json()
@@ -93,43 +93,40 @@ public class TransfersRouter extends RouteBuilder {
 //                 .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
 //                         "'Response from backend API, postTransfers: ${body}', " +
 //                         "'Tracking the response', 'Verify the response', null)")
-//
-                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
-                .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-                .setBody(constant(""))
+                //.setBody(constant("{\"homeTransactionId\": \"1234\"}"))
 
-//                .setProperty("origPayload", simple("${body}"))
-//                .to("direct:getAuthHeader")
-//                .setHeader("token", simple("${exchangeProperty.token}"))
-//
-//                .marshal().json()
-//                .transform(datasonnet("resource:classpath:mappings/postTransfersRequest.ds"))
-//                .setBody(simple("${body.content}"))
-//                .marshal().json()
-//
-//                .removeHeaders("CamelHttp*")
-//                .setHeader("Content-Type", constant("application/json"))
-//                .setHeader("Accept", constant("application/json"))
-//                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
-//
-//                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-//                        "'Calling backend API, post transfers, POST {{dfsp.host}}', " +
-//                        "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
-//                .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
-//                .unmarshal().json(JsonLibrary.Gson)
-//                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-//                        "'Response from backend API, post transfers: ${body}', " +
-//                        "'Tracking the response', 'Verify the response', null)")
-//
-//                .choice()
-//                    .when(simple("${body['code']} != 200"))
-//                        .to("direct:catchCBSError")
-//                .endDoTry()
-//
-//                .marshal().json()
-//                .transform(datasonnet("resource:classpath:mappings/postTransfersResponse.ds"))
-//                .setBody(simple("${body.content}"))
-//                .marshal().json(JsonLibrary.Gson)
+                .setProperty("origPayload", simple("${body}"))
+                .to("direct:getAuthHeader")
+                .setHeader("token", simple("${exchangeProperty.token}"))
+
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/postTransfersRequest.ds"))
+                .setBody(simple("${body.content}"))
+                .marshal().json()
+
+                .removeHeaders("CamelHttp*")
+                .setHeader("Content-Type", constant("application/json"))
+                .setHeader("Accept", constant("application/json"))
+                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
+
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Calling backend API, post transfers, POST {{dfsp.host}}', " +
+                        "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
+                .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
+                .unmarshal().json(JsonLibrary.Gson)
+                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+                        "'Response from backend API, post transfers: ${body}', " +
+                        "'Tracking the response', 'Verify the response', null)")
+
+                .choice()
+                    .when(simple("${body['code']} != 200"))
+                        .to("direct:catchCBSError")
+                .endDoTry()
+
+                .marshal().json()
+                .transform(datasonnet("resource:classpath:mappings/postTransfersResponse.ds"))
+                .setBody(simple("${body.content}"))
+                .marshal().json(JsonLibrary.Gson)
 
                 /*
                  * END processing
@@ -145,7 +142,7 @@ public class TransfersRouter extends RouteBuilder {
         ;
 
         from("direct:putTransfersByTransferId").routeId(ROUTE_ID_PUT).doTry()
-                        .process(exchange -> {
+                .process(exchange -> {
                     requestCounterPut.inc(1); // increment Prometheus Counter metric
                     exchange.setProperty(TIMER_NAME_PUT, requestLatencyPut.startTimer()); // initiate Prometheus Histogram metric
                 })
@@ -155,44 +152,43 @@ public class TransfersRouter extends RouteBuilder {
                 /*
                  * BEGIN processing
                  */
-                
-//                .setProperty("origPayload", simple("${body}"))
-//                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
-//                .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-//                .setBody(constant(""))
+
                 .setProperty("origPayload", simple("${body}"))
-                .to("direct:getAuthHeader")
-                .setHeader("token", simple("${exchangeProperty.token}"))
+                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+                .setBody(constant(""))
+//                .setProperty("origPayload", simple("${body}"))
+//                .to("direct:getAuthHeader")
+//                .setHeader("token", simple("${exchangeProperty.token}"))
 
-                .marshal().json()
-                .transform(datasonnet("resource:classpath:mappings/putTransactionRequest.ds"))
-                .setBody(simple("${body.content}"))
-                .marshal().json()
+//                .marshal().json()
+//                .transform(datasonnet("resource:classpath:mappings/putTransactionRequest.ds"))
+//                .setBody(constant(""))
+//                .marshal().json()
+//
+//                .removeHeaders("CamelHttp*")
+//                .setHeader("Content-Type", constant("application/json"))
+//                .setHeader("Accept", constant("application/json"))
+//                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
 
-                .removeHeaders("CamelHttp*")
-                .setHeader("Content-Type", constant("application/json"))
-                .setHeader("Accept", constant("application/json"))
-                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
-
-                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-                        "'Calling backend API, put transfers, POST {{dfsp.host}}', " +
-                        "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
-
-                .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
-                .unmarshal().json(JsonLibrary.Gson)
-                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
-                        "'Response from backend API, put transfers: ${body}', " +
-                        "'Tracking the response', 'Verify the response', null)")
-//                .process(exchange -> System.out.println())
-                .choice()
-                    .when(simple("${body['code']} != 200"))
-                        .to("direct:catchCBSError")
-                .endDoTry()
-
-                .marshal().json()
-                .transform(datasonnet("resource:classpath:mappings/putTransactionResponse.ds"))
-                .setBody(simple("${body.content}"))
-                .marshal().json(JsonLibrary.Gson)
+//                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+//                        "'Calling backend API, put transfers, POST {{dfsp.host}}', " +
+//                        "'Tracking the request', 'Track the response', 'Input Payload: ${body}')")
+//                .toD("{{dfsp.host}}/okdollar/v1/Payment?bridgeEndpoint=true&throwExceptionOnFailure=false")
+//                .unmarshal().json(JsonLibrary.Gson)
+//                .to("bean:customJsonMessage?method=logJsonMessage('info', ${header.X-CorrelationId}, " +
+//                        "'Response from backend API, put transfers: ${body}', " +
+//                        "'Tracking the response', 'Verify the response', null)")
+////                .process(exchange -> System.out.println())
+//                .choice()
+//                    .when(simple("${body['code']} != 200"))
+//                        .to("direct:catchCBSError")
+//                .endDoTry()
+//
+//                .marshal().json()
+//                .transform(datasonnet("resource:classpath:mappings/putTransactionResponse.ds"))
+//                .setBody(simple("${body.content}"))
+//                .marshal().json(JsonLibrary.Gson)
 
                 /*
                  * END processing
@@ -242,18 +238,18 @@ public class TransfersRouter extends RouteBuilder {
 //                .process(exchange -> System.out.println())
                     .to("direct:catchMojaloopError")
                 .endDoTry()
-           
+
 //                .process(exchange -> System.out.println())
-            
+
                 .choice()
                 .when(simple("${body['fulfil']} != null"))
 //                .process(exchange -> System.out.println())            
-                .marshal().json()
-                .transform(datasonnet("resource:classpath:mappings/getTransfersResponse.ds"))
-                .setBody(simple("${body.content}"))
-                .marshal().json()
+                    .marshal().json()
+                    .transform(datasonnet("resource:classpath:mappings/getTransfersResponse.ds"))
+                    .setBody(simple("${body.content}"))
+                    .marshal().json()
                 .endDoTry()
-            
+
                 /*
                  * END processing
                  */
@@ -264,8 +260,8 @@ public class TransfersRouter extends RouteBuilder {
                 .doCatch(CCCustomException.class, HttpOperationFailedException.class, JSONException.class)
                     .to("direct:extractCustomErrors")
                 .doFinally().process(exchange -> {
-            ((Histogram.Timer) exchange.getProperty(TIMER_NAME_GET)).observeDuration(); // stop Prometheus Histogram metric
-        }).end()
+                    ((Histogram.Timer) exchange.getProperty(TIMER_NAME_GET)).observeDuration(); // stop Prometheus Histogram metric
+                }).end()
         ;
 
     }
