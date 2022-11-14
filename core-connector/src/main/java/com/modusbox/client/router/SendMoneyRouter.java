@@ -157,7 +157,7 @@ public class SendMoneyRouter extends RouteBuilder {
 
 //                .process(exchange -> System.out.println())                
 
-                .setBody(exchangeProperty("origPayload"))
+                 .setBody(exchangeProperty("origPayload"))
                 .marshal().json()
                 .transform(datasonnet("resource:classpath:mappings/putTransfersAcceptQuoteRequest.ds"))
                 .setBody(simple("${body.content}"))
