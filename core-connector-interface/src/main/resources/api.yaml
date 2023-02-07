@@ -934,7 +934,7 @@ components:
         - REJECTED Payee FSP has failed to perform the transaction.
 
     money:
-      pattern: ^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$
+      pattern: ^([0]|([1-9][0-9]{0,13}))([.][0-9]{0,3}[0-9])?$
       type: string
 
     Party:

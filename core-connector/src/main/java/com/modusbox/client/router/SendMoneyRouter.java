@@ -6,6 +6,7 @@ import com.modusbox.client.enums.ErrorCode;
 import com.modusbox.client.exception.RouteExceptionHandlingConfigurer;
 import com.modusbox.client.processor.CorsFilter;
 import com.modusbox.client.processor.SetErrorMessagesForInactiveLoans;
+import com.modusbox.client.utils.Utility;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Histogram;
 import org.apache.camel.Exchange;
@@ -57,6 +58,10 @@ public class SendMoneyRouter extends RouteBuilder {
             .setHeader("Content-Type", constant("application/json"))
             .setProperty("locale", constant("{{dfsp.locale}}"))
             .log("Locale in Router: {{dfsp.locale}}")
+
+            .marshal().json(JsonLibrary.Gson)
+            .unmarshal().json(JsonLibrary.Gson)
+            .setProperty("amount",method(Utility.class, "stripTrailingZerosAfterDecimalPoint(${body['amount']})"))
 
             // Prune empty items from the request
             .marshal().json()
@@ -140,7 +145,7 @@ public class SendMoneyRouter extends RouteBuilder {
                 .setBody(simple("${body.content}"))
 
 //                .process(exchange -> System.out.println())
-
+                .setProperty("amount",method(Utility.class, "stripTrailingZerosAfterDecimalPoint(${body['amount']})"))
                 .choice()
                 .when(simple("${body['acceptParty']} == false"))
 //               .process(exchange -> System.out.println())
@@ -158,6 +163,7 @@ public class SendMoneyRouter extends RouteBuilder {
 //                .process(exchange -> System.out.println())                
 
                  .setBody(exchangeProperty("origPayload"))
+
                 .marshal().json()
                 .transform(datasonnet("resource:classpath:mappings/putTransfersAcceptQuoteRequest.ds"))
                 .setBody(simple("${body.content}"))
