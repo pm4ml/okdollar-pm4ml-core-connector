@@ -1,1 +1,6 @@
-std.prune(payload)
+if (std.objectHas(payload, "acceptParty") && payload.acceptParty != null)
+then {
+        "acceptParty" : payload.acceptParty,
+        "amount" : cml.exchangeProperty('amount')
+    }
+else std.prune(payload)
